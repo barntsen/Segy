@@ -2,4 +2,4 @@
 
 rm -f segy.py ibm_float.py
 rm -rf __pycache__
-rm -f data.*
+rm -rf data.*

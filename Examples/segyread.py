@@ -1,44 +1,36 @@
-''' Example of writing a numpy array to a segy file '''
+''' Example of reading a segy data set from file '''
 
 ## Imports
+import matplotlib.pyplot as pl
 import numpy as np
 import sys
 import segy
 
 def main() :
-  ''' Example of a segy file and converting to numpy'''
+  ''' Read a segy file '''
 
-
-  # Create a segy binary header
-  bhd = segy.segybhd("segy1")
-   
-  # Create the ebcdic text header
-  texthd = bytearray(3200)
-
-  # Create a segy trace header
-  trhd = segy.segyhd("segy1")
- 
   #Open input file
-  fp = open("data.sgy","rb")
+  fp = open("sect.sgy","rb")
 
-  #Read the text header
-  texthd=segy.readtexthd(fp)
+  #Read the data
+  texthd,bhd,trhds,data=segy.readtrs(fp,-1,"segy") 
+  fp.close()
 
-  #Read the binary header
-  segy.readbhd(fp,bhd)
-
-  print("Binary header job id:  ", bhd.jid )
-  print("Binary header job lno: ", bhd.lno )
   print("Binary header no of samples: ", bhd.ns )
   print("Binary header sampling: ",      bhd.dt )
   print("Data format: ",                 bhd.fmt)
-
-  #Read the data
-  trhd,data=segy.readtr(fp,trhd) 
-  fp.close()
-
-  print("*** Dump of data: ")
-  print(data)
+  print("No of traces: ",                len(trhds))
+  
+  # Plot the data
+  pl.imshow(data.transpose(),cmap='gray',extent=[0,252,4.5,0])
+  pl.xlabel("Trace no")
+  pl.ylabel("Time (sec)")
+  #Set aspect ratio
+  ax=pl.gca()
+  ar=3.0
+  asr = 1.0/(ax.get_data_ratio()*ar)
+  pl.Axes.set_aspect(ax,asr)
+  pl.show()
 
 #--Usual python magic
 if __name__ == "__main__":

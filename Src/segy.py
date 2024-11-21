@@ -16,6 +16,7 @@
     writetrs    : Write a number of traces
     ibm2ieee    : Convert IBM float to ieee
     ieee2ibm    : Convert ieee to IBM float
+
 """
 
 import sys
@@ -228,6 +229,7 @@ def writetexthd(fp, texthd) :
   return True
 
 def readbhd(fp, bhd) : 
+
   """ readbhd reads the binary header
     
     Parameters
@@ -235,12 +237,15 @@ def readbhd(fp, bhd) :
       bhd   : Binary header object
       
     Return
-      bhd   : Binary header
+      True if no errors
+      False if errors
+
+      On return the binary header fields are set.
   """
 
   buff = fp.read(bhd.nbhd)
   if buff == None :
-    return False
+    return None 
 
   #Fill in header fields
   bhd.jid = int.from_bytes(buff[0:4], byteorder=bhd.byteorder)
@@ -457,23 +462,46 @@ def getntr(fp,ns,mode) :
   fp.seek(pos)
   return int(ntr)
     
-def readtrs(fp, ntr, mode) :
+def readtrs(fp, ntr, nmode) :
   """ readtrs loads data in su or segy format from a file
         
       Parameters
         fp    : File object opened in binary mode
         ntr   : The number of traces to read. 
                 If ntr == -1 All traces found in the file are read
-        mode  : = "su" or "segy" data formats
+        nmode  : = "su" or "segy" data formats
         
       Return
-        Tuple containg a list of trace header objects and
+        Tuple containg textheader, binary header,a list of trace header objects and
          a 2D numpy array.
-         In case of read error or nonexisting mode a None,None 
+         In case of read error or nonexisting mode a None,None,None,None 
          tuple is returned.
   """
+
+  if(nmode == "segy") :
+    # Create a segy binary header
+    bhd = segybhd("segy1")
+
+    # Create the ebcdic text header
+    texthd = bytearray(3200)
+
+    # Create a segy trace header
+    trhd = segyhd("segy1")
+
+    #Read the text header
+    texthd=readtexthd(fp)
+
+    #Read the binary header
+    bhd=readbhd(fp,bhd)
+
   trhds = []
-  trhd = segyhd(mode)
+  if(bhd.fmt == 1):
+    mode ="segy1"
+    trhd = segyhd(mode)
+  elif(bhd.fmt == 4) :
+    mode ="segy4"
+    trhd = segyhd(mode)
+
   # Read a single trace to get the number of samples
   pos=fp.tell()
   trhd,trace = readtr(fp,trhd)
@@ -481,7 +509,7 @@ def readtrs(fp, ntr, mode) :
   traces=None
 
   if(ntr == -1 ) :
-    ntr=getntr(fp,trhd.ns,mode)
+    ntr=getntr(fp,trhd.ns,nmode)
 
   for i in range(0,ntr):
     trhd = segyhd(mode)
@@ -496,7 +524,8 @@ def readtrs(fp, ntr, mode) :
       traces[0,:] = trace[:]
     else :
       traces[i,:] = trace[:] 
-  return trhds,traces
+
+  return texthd,bhd,trhds,traces
         
     
 def writetr(fp,trhd,trace) :
