@@ -1,4 +1,6 @@
-''' Example of writing a numpy array to a segy file '''
+''' Example of writing a numpy array to a segy file 
+
+'''
 
 ## Imports
 import numpy as np

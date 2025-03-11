@@ -472,9 +472,15 @@ def readtrs(fp, ntr, nmode) :
         nmode  : = "su" or "segy" data formats
         
       Return
-        Tuple containg textheader, binary header,a list of trace header objects and
-         a 2D numpy array.
-         In case of read error or nonexisting mode a None,None,None,None 
+        If nmode == "segy" the return value is a
+        tuple containg textheader, binary header,a list of trace header 
+        objects and a 2D numpy array
+        
+        If nmode == "su" the return value is a
+        tuple containg list of trace header 
+        objects and a 2D numpy array
+         
+         In case of read error or nonexisting mode None is returned.
          tuple is returned.
   """
 
@@ -525,7 +531,12 @@ def readtrs(fp, ntr, nmode) :
     else :
       traces[i,:] = trace[:] 
 
-  return texthd,bhd,trhds,traces
+  if( nmode == "segy") :
+    return texthd,bhd,trhds,traces
+  elif(nmode == "su") :
+    return trhds,traces
+  else:
+    return None
         
     
 def writetr(fp,trhd,trace) :

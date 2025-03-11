@@ -24,7 +24,6 @@ def main() :
   #Open output file
   fp = open("data.su","wb")
 
-
   #Write the data
   for i in range(0,nt) :  
     segy.writetr(fp,trhd,data[i,:]) 
