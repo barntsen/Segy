@@ -10,11 +10,10 @@ def main() :
   ''' Read a segy file '''
 
   #Open input file
-  #fp = open("sect.su","rb")
-  fp = open("data.su","rb")
+  fp = open("sect.su","rb")
 
-  #Read first 240 traces 
-  trhds,data=segy.readtrs(fp,240,"su") 
+  #Read all traces
+  trhds,data=segy.readtrs(fp,-1,"su") 
   print("no of samples : ", trhds[0].ns)
   print("sampling interv (microSec)  : ", trhds[0].dt)
   print("shot no: ", trhds[0].fldr)
