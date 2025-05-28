@@ -11,6 +11,7 @@ def main() :
 
   #Open input file
   fp = open("sect.sgy","rb")
+  #fp = open("obs.sgy","rb")
 
   #Read the data
   texthd,bhd,trhds,data=segy.readtrs(fp,-1,"segy") 

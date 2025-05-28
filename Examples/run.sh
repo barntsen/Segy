@@ -6,3 +6,6 @@ cp ../Src/ibm_float.py .
 echo "=== segyread ======="
 python3 segyread.py
 
+echo "=== suread ======="
+python3 suread.py
+
